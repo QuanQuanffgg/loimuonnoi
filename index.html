@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gửi em... một câu hỏi nhỏ 🌸</title>
-    <!-- Import Font siêu đẹp từ Google -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Nunito:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
     
     <style>
@@ -44,237 +43,220 @@
             100% { transform: translateY(-110vh) rotate(360deg) scale(1.5); opacity: 0; }
         }
 
-        /* Thẻ chính phong cách Kính mờ (Glassmorphism) */
+        /* --- 0. HIỆU ỨNG HỘP THƯ (ENVELOPE) --- */
+        #envelope-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-gradient);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; transition: opacity 0.8s ease;
+        }
+        .env-wrapper {
+            position: relative; width: 300px; height: 200px; cursor: pointer;
+            perspective: 1000px;
+        }
+        /* Mặt sau phong bì */
+        .env-back {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #ff758f; border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(255, 77, 109, 0.3);
+        }
+        /* Thư bên trong */
+        .env-letter {
+            position: absolute; top: 10px; left: 15px; width: 270px; height: 180px;
+            background: #fff; border-radius: 8px;
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+            z-index: 2; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .env-text {
+            font-family: 'Great Vibes', cursive; font-size: 2.8rem;
+            color: var(--primary); font-weight: bold; text-align: center;
+        }
+        /* Hai cánh phong bì */
+        .env-front {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+            background: transparent; z-index: 3;
+            border-left: 150px solid #ff4d6d;
+            border-right: 150px solid #ff4d6d;
+            border-bottom: 110px solid #c9184a;
+            border-top: 90px solid transparent;
+            border-radius: 0 0 10px 10px;
+        }
+        /* Nắp thư */
+        .env-top {
+            position: absolute; top: 0; left: 0; width: 100%; height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 110px solid #ff8fa3;
+            transform-origin: top; z-index: 4;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Trạng thái mở */
+        .env-wrapper.open .env-top { transform: rotateX(180deg); z-index: 1; }
+        .env-wrapper.open .env-letter { transform: translateY(-100px); z-index: 5; }
+        
+        .env-hint {
+            margin-top: 30px; font-weight: 800; color: #c9184a;
+            animation: pulse 1.5s infinite; letter-spacing: 1px;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.05); } }
+
+        /* --- THẺ CHÍNH --- */
         .card {
             position: relative; z-index: 10;
             background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             border: 2px solid rgba(255, 255, 255, 0.9);
-            border-radius: 32px;
-            padding: 35px 30px;
+            border-radius: 32px; padding: 35px 30px;
             width: 92%; max-width: 520px;
             box-shadow: 0 20px 50px rgba(255, 77, 109, 0.18);
             text-align: center;
+            opacity: 0; display: none; transition: opacity 0.8s ease;
         }
+        .card.show { opacity: 1; display: block; }
 
         /* --- 1. THANH TIẾN ĐỘ (STEPPER) --- */
-        .stepper-wrapper {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 35px;
-            padding: 0 10px;
-        }
-
-        /* Đường line nền */
-        .stepper-track {
-            position: absolute; top: 18px; left: 30px; right: 30px;
-            height: 4px; background: #ffe0e9; z-index: 1;
-        }
-
-        /* Đường line tô màu chạy theo tiến độ */
-        .stepper-fill {
-            position: absolute; top: 18px; left: 30px;
-            height: 4px; background: var(--primary); z-index: 2;
-            width: 0%; /* Sẽ thay đổi bằng JS */
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .step-item {
-            position: relative; z-index: 3;
-            display: flex; flex-direction: column; align-items: center;
-            width: 60px;
-        }
-
-        /* Chiếc xe chạy trên đầu */
-        .step-car {
-            position: absolute; top: -26px; font-size: 22px;
-            opacity: 0; transform: translateY(8px);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+        .stepper-wrapper { position: relative; display: flex; justify-content: space-between; margin-bottom: 35px; padding: 0 10px; }
+        .stepper-track { position: absolute; top: 18px; left: 30px; right: 30px; height: 4px; background: #ffe0e9; z-index: 1; }
+        .stepper-fill { position: absolute; top: 18px; left: 30px; height: 4px; background: var(--primary); z-index: 2; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .step-item { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; width: 60px; }
+        .step-car { position: absolute; top: -26px; font-size: 22px; opacity: 0; transform: translateY(8px); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .step-item.current .step-car { opacity: 1; transform: translateY(0); }
-
-        .step-circle {
-            width: 38px; height: 38px; border-radius: 50%;
-            background: #fff; border: 3px solid #ffe0e9;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: 800; font-size: 14px; color: #b5838d;
-            transition: all 0.4s;
-        }
-
-        .step-label {
-            font-size: 11px; font-weight: 800; margin-top: 8px;
-            color: #b5838d; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-
-        /* Trạng thái các bước */
-        .step-item.active .step-circle {
-            border-color: var(--primary); background: #fff0f3; color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(255, 77, 109, 0.15);
-        }
+        .step-circle { width: 38px; height: 38px; border-radius: 50%; background: #fff; border: 3px solid #ffe0e9; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 14px; color: #b5838d; transition: all 0.4s; }
+        .step-label { font-size: 11px; font-weight: 800; margin-top: 8px; color: #b5838d; text-transform: uppercase; letter-spacing: 0.5px; }
+        .step-item.active .step-circle { border-color: var(--primary); background: #fff0f3; color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 77, 109, 0.15); }
         .step-item.active .step-label { color: var(--primary); }
-
-        .step-item.completed .step-circle {
-            background: var(--primary); border-color: var(--primary); color: white;
-        }
+        .step-item.completed .step-circle { background: var(--primary); border-color: var(--primary); color: white; }
         .step-item.completed .step-label { color: var(--text-main); }
-
 
         /* --- 2. NỘI DUNG CÁC BƯỚC --- */
         .stage { display: none; animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .stage.active { display: block; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .script-title {
-            font-family: 'Great Vibes', cursive;
-            font-size: 3.2rem; color: var(--primary);
-            line-height: 1.1; margin-bottom: 10px;
-            text-shadow: 1px 2px 4px rgba(255, 77, 109, 0.15);
-        }
-
-        .sub-title {
-            font-size: 0.95rem; font-weight: 800; color: #c9184a;
-            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px;
-        }
-
-        .quote {
-            font-size: 1.05rem; line-height: 1.6; color: var(--text-muted);
-            margin-bottom: 25px; padding: 0 10px; font-weight: 600;
-        }
-
-        .gif-box {
-            width: 180px; height: 180px; margin: 0 auto 20px;
-            border-radius: 20px; overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-        }
+        .script-title { font-family: 'Great Vibes', cursive; font-size: 3.2rem; color: var(--primary); line-height: 1.1; margin-bottom: 10px; text-shadow: 1px 2px 4px rgba(255, 77, 109, 0.15); }
+        .sub-title { font-size: 0.95rem; font-weight: 800; color: #c9184a; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; }
+        .quote { font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 25px; padding: 0 10px; font-weight: 600; }
+        .gif-box { width: 180px; height: 180px; margin: 0 auto 20px; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
         .gif-box img { width: 100%; height: 100%; object-fit: cover; }
 
         /* Nút bấm */
-        .btn-area {
-            display: flex; justify-content: center; gap: 16px;
-            min-height: 55px; align-items: center; position: relative;
-        }
-
-        .btn {
-            padding: 14px 32px; font-size: 1.1rem; font-weight: 800;
-            border-radius: 50px; border: none; cursor: pointer;
-            transition: all 0.25s; font-family: inherit;
-        }
-
-        .btn-primary {
-            background: var(--primary); color: white;
-            box-shadow: 0 8px 20px rgba(255, 77, 109, 0.35);
-        }
+        .btn-area { display: flex; justify-content: center; gap: 16px; min-height: 55px; align-items: center; position: relative; }
+        .btn { padding: 14px 32px; font-size: 1.1rem; font-weight: 800; border-radius: 50px; border: none; cursor: pointer; transition: all 0.25s; font-family: inherit; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(255, 77, 109, 0.35); }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(255, 77, 109, 0.45); }
-
         .btn-secondary { background: #e5d5d8; color: #590d22; }
 
-        /* Date picker custom */
-        input[type="datetime-local"] {
-            width: 100%; padding: 16px; font-size: 1.05rem; font-weight: 700;
-            font-family: inherit; color: var(--text-main);
-            background: #fff0f3; border: 2px dashed var(--primary-light);
-            border-radius: 18px; outline: none; margin-bottom: 25px;
-            text-align: center; cursor: pointer;
-        }
+        input[type="datetime-local"] { width: 100%; padding: 16px; font-size: 1.05rem; font-weight: 700; font-family: inherit; color: var(--text-main); background: #fff0f3; border: 2px dashed var(--primary-light); border-radius: 18px; outline: none; margin-bottom: 25px; text-align: center; cursor: pointer; }
         input[type="datetime-local"]:focus { border-color: var(--primary); background: #fff; }
 
-        /* Food Grid */
-        .food-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-            margin-bottom: 25px;
+        /* --- 3. MENU ẨM THỰC LƯỚT & GIỎ HÀNG --- */
+        .menu-container {
+            max-height: 260px; overflow-y: auto; background: #fff; border-radius: 20px;
+            padding: 10px; margin-bottom: 20px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #ffe0e9;
         }
-        .food-card {
-            background: white; border: 2px solid #ffe0e9; border-radius: 20px;
-            padding: 16px 10px; cursor: pointer; transition: all 0.25s;
-            display: flex; flex-direction: column; align-items: center; gap: 6px;
+        .menu-container::-webkit-scrollbar { width: 6px; }
+        .menu-container::-webkit-scrollbar-track { background: #fff0f3; border-radius: 10px; }
+        .menu-container::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 10px; }
+
+        .menu-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; margin-bottom: 10px; background: #fff0f3; border-radius: 16px;
+            transition: all 0.2s; border: 1px solid transparent;
         }
-        .food-card:hover { transform: translateY(-4px); border-color: var(--primary-light); }
-        .food-card.selected {
-            background: #fff0f3; border-color: var(--primary);
-            box-shadow: 0 8px 20px rgba(255, 77, 109, 0.15);
+        .menu-item:hover { border-color: var(--primary-light); background: #ffe0e9; transform: translateX(5px); }
+        .menu-item:last-child { margin-bottom: 0; }
+        
+        .mi-left { display: flex; align-items: center; gap: 12px; text-align: left; }
+        .mi-icon { font-size: 2rem; }
+        .mi-info { display: flex; flex-direction: column; }
+        .mi-name { font-weight: 800; font-size: 1rem; color: var(--text-main); }
+        .mi-desc { font-size: 0.8rem; color: var(--text-muted); }
+        
+        .btn-add {
+            background: var(--primary); color: #fff; border: none; width: 35px; height: 35px; border-radius: 50%;
+            font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3); transition: 0.2s;
         }
-        .food-emoji { font-size: 2.4rem; }
-        .food-name { font-weight: 800; font-size: 1rem; }
-        .food-desc { font-size: 0.75rem; color: #800f2f; opacity: 0.7; }
+        .btn-add:hover { transform: scale(1.1); }
+
+        /* Khung giỏ hàng & Checkout */
+        .cart-box {
+            background: #fff; border: 2px dashed var(--primary); border-radius: 20px; padding: 15px; margin-bottom: 20px; text-align: left; animation: popIn 0.3s;
+        }
+        .cart-title { font-weight: 800; color: #c9184a; font-size: 0.9rem; margin-bottom: 8px; }
+        .cart-items { font-weight: 600; color: var(--text-main); font-size: 0.95rem; margin-bottom: 10px; min-height: 20px; display: flex; flex-wrap: wrap; gap: 6px;}
+        
+        /* Chỉnh lại thẻ hiển thị món ăn trong giỏ để chứa được nút xóa */
+        .cart-item-tag { 
+            display: inline-flex; align-items: center; gap: 6px; 
+            background: #fff0f3; padding: 6px 10px 6px 12px; border-radius: 20px; 
+            font-size: 0.85rem; border: 1px solid #ffb3c1;
+        }
+        /* Nút xóa trong tag món ăn */
+        .remove-btn {
+            display: inline-flex; justify-content: center; align-items: center;
+            width: 20px; height: 20px; border-radius: 50%; background: #ffe0e9;
+            color: #c9184a; font-size: 0.75rem; cursor: pointer; transition: 0.2s; font-weight: bold;
+        }
+        .remove-btn:hover { background: #ff4d6d; color: white; transform: scale(1.1); }
+
+        .cart-divider { height: 1px; background: #ffe0e9; margin: 10px 0; }
+        .cart-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; align-items: center;}
+        .price-tag { color: var(--primary); font-size: 1.1rem; background: #ffe0e9; padding: 4px 12px; border-radius: 20px;}
 
         /* Final Card Ticket */
-        .ticket {
-            background: #fff0f3; border: 2px dashed var(--primary);
-            padding: 20px; border-radius: 20px; margin: 15px 0 25px;
-            font-size: 1.1rem; line-height: 1.8;
-        }
+        .ticket { background: #fff0f3; border: 2px dashed var(--primary); padding: 20px; border-radius: 20px; margin: 15px 0 25px; font-size: 1.1rem; line-height: 1.8; }
     </style>
 </head>
 <body>
 
     <div class="floating-hearts" id="fHearts"></div>
 
-    <div class="card">
+    <div id="envelope-screen">
+        <div class="env-wrapper" id="envelopeWrapper" onclick="openLetter()">
+            <div class="env-back"></div>
+            <div class="env-letter">
+                <div class="env-text">To @Tuyetzanhhh</div>
+            </div>
+            <div class="env-front"></div>
+            <div class="env-top"></div>
+        </div>
+        <div class="env-hint" id="envHint">Chạm vào thư để mở 💌</div>
+    </div>
+
+    <div class="card" id="mainCard">
         
-        <!-- THANH TIẾN ĐỘ -->
         <div class="stepper-wrapper">
             <div class="stepper-track"></div>
             <div class="stepper-fill" id="stepFill"></div>
-
-            <div class="step-item active current" id="node-1">
-                <span class="step-car">🚗</span>
-                <div class="step-circle">1</div>
-                <span class="step-label">Ask Out</span>
-            </div>
-            <div class="step-item" id="node-2">
-                <span class="step-car">🚗</span>
-                <div class="step-circle">2</div>
-                <span class="step-label">Pick Time</span>
-            </div>
-            <div class="step-item" id="node-3">
-                <span class="step-car">🚗</span>
-                <div class="step-circle">3</div>
-                <span class="step-label">Food</span>
-            </div>
-            <div class="step-item" id="node-4">
-                <span class="step-car">🚗</span>
-                <div class="step-circle">4</div>
-                <span class="step-label">Confirm</span>
-            </div>
+            <div class="step-item active current" id="node-1"><span class="step-car">🚗</span><div class="step-circle">1</div><span class="step-label">Ask Out</span></div>
+            <div class="step-item" id="node-2"><span class="step-car">🚗</span><div class="step-circle">2</div><span class="step-label">Pick Time</span></div>
+            <div class="step-item" id="node-3"><span class="step-car">🚗</span><div class="step-circle">3</div><span class="step-label">Food</span></div>
+            <div class="step-item" id="node-4"><span class="step-car">🚗</span><div class="step-circle">4</div><span class="step-label">Confirm</span></div>
         </div>
 
-        <!-- STAGE 1: ASK OUT -->
         <div id="stage-1" class="stage active">
-            <div class="sub-title">✨ Gửi người anh thương ✨</div>
+            <div class="sub-title">✨ Gửi @tuyetzanhhh ✨</div>
             <h1 class="script-title">When should our story begin?</h1>
             
-            <div class="gif-box">
-                <img src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-hug.gif" alt="cute cat">
-            </div>
+            <div class="gif-box"><img src="anh1.jpg" alt="cute cat"></div>
 
-            <p class="quote">
-                "Sau gần 1 năm chúng ta đồng hành cùng nhau, có lẽ em nên cho anh cơ hội để tiến xa hơn chứ"
-            </p>
+            <p class="quote">"Sau gần 1 năm chúng ta đồng hành cùng nhau, có lẽ em nên cho anh cơ hội để tiến xa hơn chứ"</p>
 
             <div class="btn-area">
-                <button class="btn btn-primary" onclick="goToStep(2)">Dạ đồng ý ❤️</button>
-                <button class="btn btn-secondary" id="btnRunaway">Không hờ 😛</button>
+                <button class="btn btn-primary" onclick="goToStep(2)">Đồng ý ❤️</button>
+                <button class="btn btn-secondary" id="btnRunaway">Không (Cấm bấm)</button>
             </div>
         </div>
 
-        <!-- STAGE 2: PICK TIME -->
         <div id="stage-2" class="stage">
             <div class="sub-title">Nhiệm vụ 1: Hoàn thành xuất sắc 🎉</div>
             <h1 class="script-title">Pick a Date</h1>
             
-            <div class="gif-box">
-                <img src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-hug.gif" alt="hug">
-            </div>
+            <div class="gif-box"><img src="anh2.jpg.gif" alt="hug"></div>
 
-            <p class="quote">
-                "Bước khó nhất anh làm được rồi! Bây giờ em hãy mở 'lịch triều chính' ra và chọn một cột mốc định mệnh để chúng mình đi hẹn hò nhé:"
-            </p>
+            <p class="quote">"Bước khó nhất anh làm được rồi! Bây giờ em hãy mở 'lịch triều chính' ra và chọn một cột mốc định mệnh để chúng mình đi hẹn hò nhé:"</p>
 
             <input type="datetime-local" id="timeInput">
 
@@ -283,63 +265,87 @@
             </div>
         </div>
 
-        <!-- STAGE 3: FOOD MISSION -->
         <div id="stage-3" class="stage">
             <div class="sub-title">Vỗ béo chiếc bụng đói 🍱</div>
-            <h1 class="script-title">Food Mission</h1>
+            <h1 class="script-title">Menu Date</h1>
 
-            <p class="quote" style="margin-bottom: 15px;">
-                "Đi hẹn hò mà để em đói là anh có tội lớn với thiên nhiên. Chọn một 'hệ tư tưởng ẩm thực' em thích nhất dưới đây nhé!"
-            </p>
+            <p class="quote" style="margin-bottom: 15px;">"Thêm món em thích vào giỏ hàng nhé. Hôm nay anh bao trọn gói! 🤤"</p>
 
-            <div class="food-grid">
-                <div class="food-card" onclick="pickFood('Lẩu Uyên Ương 🍲', this)">
-                    <span class="food-emoji">🍲</span>
-                    <span class="food-name">Lẩu sục sôi</span>
-                    <span class="food-desc">Ấm áp như tình mình</span>
+            <div class="menu-container">
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🍗</span><div class="mi-info"><span class="mi-name">Chân gà</span><span class="mi-desc">Chân gà sốt THÁIIII</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Chân gà', '🍗')">+</button>
                 </div>
-                <div class="food-card" onclick="pickFood('Nướng BBQ 🥩', this)">
-                    <span class="food-emoji">🥩</span>
-                    <span class="food-name">Xèo xèo BBQ</span>
-                    <span class="food-desc">Thơm nức mũi xỉu ngang</span>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🥩</span><div class="mi-info"><span class="mi-name">Thịt xiên nướng</span><span class="mi-desc">Ăn luôn cả xiên</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Thịt xiên nướng', '🥩')">+</button>
                 </div>
-                <div class="food-card" onclick="pickFood('Sushi Nhật Bản 🍣', this)">
-                    <span class="food-emoji">🍣</span>
-                    <span class="food-name">Sushi cá hồi</span>
-                    <span class="food-desc">Thanh tao & nhẹ nhàng</span>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🍗</span><div class="mi-info"><span class="mi-name">Jollibee</span><span class="mi-desc">Đá vội 200 cái đùi gà</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Jollibee', '🍗')">+</button>
                 </div>
-                <div class="food-card" onclick="pickFood('Pizza Phô Mai 🍕', this)">
-                    <span class="food-emoji">🍕</span>
-                    <span class="food-name">Pizza phô mai</span>
-                    <span class="food-desc">Kéo dài nỗi nhớ em</span>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🍡</span><div class="mi-info"><span class="mi-name">Xiên Bẩn</span><span class="mi-desc">Tuy bẩn mà sạch</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Xiên bẩn', '🍡')">+</button>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🍽️</span><div class="mi-info"><span class="mi-name">Bánh Tráng</span><span class="mi-desc">Ở đâu được ta</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Bánh Tráng', '🍽️')">+</button>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🍨</span><div class="mi-info"><span class="mi-name">Kemmmm</span><span class="mi-desc">Ngon lunn</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Kemmm', '🍨')">+</button>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🍘</span><div class="mi-info"><span class="mi-name">Kimbapp</span><span class="mi-desc">CARBBBB</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Kimbapp', '🍨')">+</button>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🍜</span><div class="mi-info"><span class="mi-name">Mì cayy</span><span class="mi-desc">Ăn cấp 0 thoii</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Mì Cay', '🍜')">+</button>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🥣</span><div class="mi-info"><span class="mi-name">Chè</span><span class="mi-desc">Chè siu ngoll</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Chè', '🥣')">+</button>
+                </div>
+                <div class="menu-item">
+                    <div class="mi-left"><span class="mi-icon">🧋</span><div class="mi-info"><span class="mi-name">Trà sữa Full Topping</span><span class="mi-desc">Có topping gì khh</span></div></div>
+                    <button class="btn-add" onclick="addToCart('Trà sữa', '🧋')">+</button>
+                </div>
+            </div>
+
+            <div class="cart-box">
+                <div class="cart-title">🛒 Giỏ đồ ăn của em:</div>
+                <div class="cart-items" id="cartItems">
+                    <span style="color: #b5838d; font-weight: normal; font-size: 0.9rem;">Chưa chọn món nào cả 🥺</span>
+                </div>
+                <div class="cart-divider"></div>
+                <div class="cart-total">
+                    <span>Tổng thanh toán:</span>
+                    <span class="price-tag" id="cartPrice">0 VNĐ</span>
                 </div>
             </div>
 
             <div class="btn-area">
-                <button class="btn btn-primary" id="btnNextFood" style="display: none; width: 100%;" onclick="goToStep(4)">Chốt thực đơn! ✅</button>
+                <button class="btn btn-primary" id="btnNextFood" style="display: none; width: 100%;" onclick="goToStep(4)">Thanh Toán & Chốt Lịch! ✅</button>
             </div>
         </div>
 
-        <!-- STAGE 4: CONFIRMATION -->
         <div id="stage-4" class="stage">
-            <div class="sub-title">💌 Hợp đồng đã ký kết 💌</div>
+            <div class="sub-title">💌 Giao dịch thành công 💌</div>
             <h1 class="script-title">See you soon!</h1>
 
-            <div class="gif-box">
-                <img src="https://media.tenor.com/f_rE-qptjfwAAAAi/tkthao219-bubududu.gif" alt="dance">
-            </div>
+            <div class="gif-box"><img src="anh3.jpg" alt="dance"></div>
 
             <div class="ticket" id="ticketContent"></div>
 
-            <p class="quote" style="font-size: 0.95rem;">
-                *Nhiệm vụ của em lúc này là: Ăn thật ngon, ngủ thật sớm, chọn một chiếc váy thật xinh. Anh sẽ đứng đợi ở vạch xuất phát! 🛵💨
-            </p>
+            <p class="quote" style="font-size: 0.95rem;">*Nhiệm vụ của em lúc này là: Ăn thật ngon, ngủ thật sớm, chọn một chiếc váy thật xinh. Anh sẽ qua đón nhé! 🛵💨</p>
         </div>
 
     </div>
 
     <script>
-        /* Tạo tim bay background */
+        /* --- 0. BACKGROUND TIM BAY --- */
         const bg = document.getElementById('fHearts');
         for(let i=0; i<18; i++) {
             let h = document.createElement('div');
@@ -352,7 +358,26 @@
             bg.appendChild(h);
         }
 
-        /* --- XỬ LÝ THANH TIẾN ĐỘ --- */
+        /* --- 0. HIỆU ỨNG MỞ THƯ --- */
+        function openLetter() {
+            const wrapper = document.getElementById('envelopeWrapper');
+            const screen = document.getElementById('envelope-screen');
+            const card = document.getElementById('mainCard');
+            
+            document.getElementById('envHint').style.display = 'none';
+            wrapper.classList.add('open');
+            
+            setTimeout(() => {
+                screen.style.opacity = '0';
+                setTimeout(() => {
+                    screen.style.display = 'none';
+                    card.style.display = 'block';
+                    setTimeout(() => { card.classList.add('show'); }, 50);
+                }, 800);
+            }, 1800);
+        }
+
+        /* --- 1. XỬ LÝ THANH TIẾN ĐỘ --- */
         function updateStepper(step) {
             const fill = document.getElementById('stepFill');
             fill.style.width = ((step - 1) / 3) * 100 + '%';
@@ -363,11 +388,9 @@
                 node.classList.remove('active', 'completed', 'current');
 
                 if(i < step) {
-                    node.classList.add('completed');
-                    circle.innerHTML = '✓';
+                    node.classList.add('completed'); circle.innerHTML = '✓';
                 } else if (i === step) {
-                    node.classList.add('active', 'current');
-                    circle.innerHTML = i;
+                    node.classList.add('active', 'current'); circle.innerHTML = i;
                 } else {
                     circle.innerHTML = i;
                 }
@@ -375,7 +398,7 @@
         }
 
         /* --- CHUYỂN BƯỚC --- */
-        let myTime = '', myFood = '';
+        let myTime = '';
 
         function goToStep(step) {
             document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
@@ -386,11 +409,14 @@
                 let d = new Date(myTime);
                 let timeFormatted = `${d.getHours()}h${d.getMinutes()<10?'0':''}${d.getMinutes()}`;
                 let dateFormatted = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+                
+                let foodListStr = cart.map(item => item.name).join(', ');
 
                 document.getElementById('ticketContent').innerHTML = 
-                    `Sự kiện: <b>Hẹn hò cùng Anh</b><br>` +
+                    `Sự kiện: <b>"First Date" của ctaaa</b><br>` +
                     `Thời gian: <b>${timeFormatted} - Ngày ${dateFormatted}</b><br>` +
-                    `Thực đơn: <b>${myFood}</b>`;
+                    `Thực đơn chốt: <b>${foodListStr}</b><br>` +
+                    `Phí thanh toán: <b>${cart.length} cái nắm tay 🤝</b>`;
             }
         }
 
@@ -418,22 +444,61 @@
             }
         };
         btnNo.addEventListener('mouseover', runaway);
-        btnNo.addEventListener('touchstart', runaway); // Cho mobile
+        btnNo.addEventListener('touchstart', runaway); 
 
         /* --- BƯỚC 2: CHỌN GIỜ --- */
         function submitTime() {
             let input = document.getElementById('timeInput').value;
-            if(!input) { alert("Nàng chưa chọn giờ kìa! 🥺"); return; }
+            if(!input) { alert("Chưa chọn giờ kìa! 🥺"); return; }
             myTime = input;
             goToStep(3);
         }
 
-        /* --- BƯỚC 3: CHỌN MÓN --- */
-        function pickFood(name, el) {
-            myFood = name;
-            document.querySelectorAll('.food-card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-            document.getElementById('btnNextFood').style.display = 'inline-block';
+        /* --- BƯỚC 3: GIỎ HÀNG (CART LOGIC) --- */
+        let cart = [];
+
+        function addToCart(name, icon) {
+            const isExist = cart.some(item => item.name === name);
+            if(!isExist) {
+                cart.push({name, icon});
+                renderCartUI();
+            } else {
+                alert(`Món ${name} đã có trong giỏ đồ ăn rồi nè! 🤤`);
+            }
+        }
+        
+        // HÀM XÓA MÓN ĂN MỚI THÊM
+        function removeFromCart(name) {
+            cart = cart.filter(item => item.name !== name);
+            renderCartUI();
+        }
+
+        function renderCartUI() {
+            const cartContainer = document.getElementById('cartItems');
+            const priceTag = document.getElementById('cartPrice');
+            const btnNext = document.getElementById('btnNextFood');
+
+            if(cart.length === 0) {
+                cartContainer.innerHTML = '<span style="color: #b5838d; font-weight: normal; font-size: 0.9rem;">Chưa chọn món nào cả 🥺</span>';
+                priceTag.innerHTML = '0 VNĐ';
+                btnNext.style.display = 'none';
+            } else {
+                let html = '';
+                cart.forEach(item => {
+                    html += `
+                        <span class="cart-item-tag">
+                            ${item.icon} ${item.name} 
+                            <span class="remove-btn" onclick="removeFromCart('${item.name}')">✖</span>
+                        </span>
+                    `;
+                });
+                cartContainer.innerHTML = html;
+                
+                // MẤU CHỐT TÍNH GIÁ ĐÂY NHÉ:
+                priceTag.innerHTML = `${cart.length} cái nắm tay 🤝`;
+                
+                btnNext.style.display = 'inline-block';
+            }
         }
     </script>
 </body>
